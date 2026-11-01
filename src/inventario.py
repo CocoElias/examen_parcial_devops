@@ -1,23 +1,38 @@
 import requests
 import csv
 
-url = "https://dummyjson.com/products"
+def obtener_datos():
+    """Obtiene los datos desde la API REST"""
 
-respuesta = requests.get(url)
+    url = "https://dummyjson.com/products"
+    respuesta = requests.get(url)
 
-if respuesta.status_code == 200:
-    datos = respuesta.json()
-    with open("data/inventario.csv", "w", newline="", encoding="utf-8")as archivo:
+    if respuesta.status_code == 200:
+        return respuesta.json()
+    else:
+        print("Error al conectar con la API")
+        print("Codigo de estado: ", respuesta.status_code)
+        return None
+
+def generar_csv(datos):
+    """Genera el archivo CSV del inventario"""
+
+    with open("data/inventario.csv", "w")as archivo:
         escritor = csv.writer(archivo)
-        escritor.writerow(["ID","Producto","Precio"])
+        escritor.writerow(["ID", "PRODUCTO", "PRECIO"])
+
         for producto in datos["products"]:
             escritor.writerow([
                 producto["id"],
                 producto["title"],
                 producto["price"]
             ])
+        print("Archivo generado correctamente")
 
-        print ("Archivo CSV generado correctamente")
-else:
-    print("Error al conectar con la API")
-    print("Codigo de estado: ", respuesta.status_code)
+def main():
+    datos = obtener_datos()
+    if datos:
+        generar_csv(datos)
+
+if __name__ == "__main__":
+    main()
